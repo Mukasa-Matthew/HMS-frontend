@@ -266,8 +266,8 @@ export function DashboardLayout({ children, navItems, title, subtitle, userRole 
   );
 
   return (
-    <Box minH="100vh" bg="gray.50" color="gray.900">
-      <Flex>
+    <Box minH="100vh" bg="gray.50" color="gray.900" w="100%" maxW="100%" overflowX="hidden">
+      <Flex w="100%" maxW="100%">
         {/* Desktop Sidebar */}
         <Box
           as="nav"
@@ -306,11 +306,14 @@ export function DashboardLayout({ children, navItems, title, subtitle, userRole 
         <Box 
           flex="1" 
           bg="#fafbfc" 
-          minW={0} 
+          minW={0}
+          w="100%"
+          maxW="100%"
           display="flex" 
           flexDirection="column"
           ml={{ base: 0, md: sidebarCollapsed ? '80px' : '260px' }}
           transition="margin-left 0.3s ease"
+          overflowX="hidden"
         >
           {/* Top Header */}
           <Box
@@ -472,24 +475,18 @@ export function DashboardLayout({ children, navItems, title, subtitle, userRole 
           </Box>
 
           {/* Main Content */}
-          <Box flex="1" px={{ base: 4, md: 8 }} py={{ base: 5, md: 6 }} overflowX="hidden">
+          <Box 
+            flex="1" 
+            w="100%" 
+            maxW="100%"
+            px={{ base: 4, md: 8 }} 
+            py={{ base: 5, md: 6 }} 
+            overflowX="hidden"
+          >
             {children}
           </Box>
         </Box>
         
-        {/* Footer Copyright - Desktop only */}
-        <Box 
-          display={{ base: 'none', md: 'block' }}
-          px={{ base: 4, md: 8 }}
-          py={4}
-          borderTop="1px solid"
-          borderColor="gray.200"
-          bg="white"
-        >
-          <Text fontSize="xs" color="gray.500" textAlign="center" fontWeight="medium">
-            ©2026, a product of <Text as="span" fontWeight="bold" color="brand.600">MARTMOR TECHNOLOGIES</Text>
-          </Text>
-        </Box>
       </Flex>
     </Box>
   );

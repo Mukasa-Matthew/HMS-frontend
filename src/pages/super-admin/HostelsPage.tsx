@@ -112,7 +112,7 @@ export function HostelsPage() {
   const inactiveHostels = hostels.filter((h) => h.is_active === 0).length;
 
   return (
-    <Box>
+    <Box w="100%" maxW="100%">
       <Flex justify="space-between" align="center" mb={6}>
         <Box>
           <Heading size="lg" mb={2} color="gray.900" fontWeight="700">

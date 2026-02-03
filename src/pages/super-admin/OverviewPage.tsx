@@ -63,7 +63,7 @@ export function OverviewPage() {
   const custodians = users.filter((u) => u.role === 'CUSTODIAN').length;
 
   return (
-    <Box>
+    <Box w="100%" maxW="100%">
       {/* Quick Actions */}
       <Flex gap={3} mb={6} flexWrap="wrap">
         <Button
