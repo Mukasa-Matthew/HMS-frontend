@@ -30,7 +30,7 @@ export function DashboardLayout({ children, navItems, title, subtitle, userRole 
   const { hostel, loading: hostelLoading } = useHostel();
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Start collapsed/hidden
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isMobile, setIsMobile] = useState(false);
 
@@ -280,16 +280,16 @@ export function DashboardLayout({ children, navItems, title, subtitle, userRole 
   return (
     <Box minH="100vh" bg="gray.50" color="gray.900">
       <Flex>
-        {/* Desktop Sidebar */}
+        {/* Desktop Sidebar - Hidden by default to give more space */}
         <Box
           as="nav"
-          w={{ base: '0', md: sidebarCollapsed ? '80px' : '260px' }}
+          w={{ base: '0', md: '0' }}
           bg="white"
           h="100vh"
           position="fixed"
           top={0}
           left={0}
-          display={{ base: 'none', md: 'flex' }}
+          display={{ base: 'none', md: 'none' }}
           flexDirection="column"
           transition="width 0.3s ease"
           boxShadow="0 1px 3px 0 rgba(0, 0, 0, 0.05)"
@@ -299,7 +299,7 @@ export function DashboardLayout({ children, navItems, title, subtitle, userRole 
           <SidebarContent />
         </Box>
 
-        {/* Mobile Drawer */}
+        {/* Navigation Drawer - Available on all screen sizes */}
         <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="xs">
           <DrawerOverlay bg="blackAlpha.300" backdropFilter="blur(4px)" />
           <DrawerContent maxW="280px">
@@ -321,7 +321,7 @@ export function DashboardLayout({ children, navItems, title, subtitle, userRole 
           minW={0} 
           display="flex" 
           flexDirection="column"
-          ml={{ base: 0, md: sidebarCollapsed ? '80px' : '260px' }}
+          ml={{ base: 0, md: 0 }}
           transition="margin-left 0.3s ease"
         >
           {/* Top Header */}
@@ -339,16 +339,15 @@ export function DashboardLayout({ children, navItems, title, subtitle, userRole 
           >
             <Flex justify="space-between" align="center" gap={4}>
               <Flex align="center" gap={4} flex="1" minW={0}>
-                {isMobile && (
-                  <IconButton
-                    aria-label="Open menu"
-                    icon={<MenuIcon className="w-5 h-5" />}
-                    variant="ghost"
-                    onClick={onOpen}
-                    color="gray.600"
-                    _hover={{ bg: 'gray.50' }}
-                  />
-                )}
+                {/* Menu button - show on all screen sizes to access navigation */}
+                <IconButton
+                  aria-label="Open menu"
+                  icon={<MenuIcon className="w-5 h-5" />}
+                  variant="ghost"
+                  onClick={onOpen}
+                  color="gray.600"
+                  _hover={{ bg: 'gray.50' }}
+                />
                 <Box flex="1" minW={0}>
                   <Heading
                     size={{ base: 'md', md: 'lg' }}
