@@ -262,18 +262,6 @@ export function DashboardLayout({ children, navItems, title, subtitle, userRole 
         </Box>
       )}
       
-      {/* Copyright Notice */}
-      <Box 
-        p={3} 
-        borderTop="1px solid" 
-        borderColor="gray.100" 
-        bg="gray.50"
-        display={sidebarCollapsed && !isMobile ? 'none' : 'block'}
-      >
-        <Text fontSize="xs" color="gray.500" textAlign="center" fontWeight="medium">
-          ©2026, a product of <Text as="span" fontWeight="bold" color="brand.600">MARTMOR TECHNOLOGIES</Text>
-        </Text>
-      </Box>
     </Box>
   );
 
