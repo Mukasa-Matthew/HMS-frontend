@@ -22,6 +22,28 @@
     max-width: 100%;
     overflow-x: hidden;
   }
+  
+  /* Hide browser extension UI elements like Paste buttons in sidebar */
+  .hms-sidebar button[aria-label*="Paste"],
+  .hms-sidebar button[aria-label*="paste"],
+  .hms-sidebar button[title*="Paste"],
+  .hms-sidebar button[title*="paste"],
+  .hms-sidebar .paste-button,
+  /* Hide first few buttons in sidebar that might be extension injected */
+  .hms-sidebar > button:first-child,
+  .hms-sidebar > button:nth-child(2),
+  /* Hide any button with Paste in its text (using attribute selectors) */
+  button[data-paste],
+  button[data-clipboard] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
 }
 
 @layer utilities {

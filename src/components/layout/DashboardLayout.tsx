@@ -71,6 +71,7 @@ export function DashboardLayout({ children, navItems, title, subtitle, userRole 
         borderRight="1px solid"
         borderColor="gray.200"
         boxShadow="2px 0 8px rgba(0, 0, 0, 0.04)"
+        className="hms-sidebar"
       >
       {/* Logo Section */}
       <Box px={4} py={6} borderBottom="1px solid" borderColor="gray.100">
