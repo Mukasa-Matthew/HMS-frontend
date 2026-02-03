@@ -220,43 +220,51 @@ export function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center relative overflow-hidden"
+      className="min-h-screen relative overflow-y-auto"
       style={{
         backgroundImage:
           'linear-gradient(to bottom right, rgba(15,23,42,0.65), rgba(15,23,42,0.45)), url("https://images.unsplash.com/photo-1596276020587-8044fe049813?w=1600&auto=format&fit=crop&q=80&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8aG9zdGVsc3xlbnwwfHwwfHx8MA%3D%3D")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed', // Makes background static
       }}
     >
-      {/* Decorative overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-indigo-600/10 pointer-events-none" />
+      {/* Decorative overlay - also fixed */}
+      <div 
+        className="fixed inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-indigo-600/10 pointer-events-none z-0"
+        style={{ backgroundAttachment: 'fixed' }}
+      />
       
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="w-full max-w-lg px-4 sm:px-6 relative z-10"
-      >
+      {/* Scrollable content container */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center py-8 px-4 sm:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="w-full max-w-lg relative z-10"
+        >
         <Card 
-          className="backdrop-blur-xl bg-white/98 border border-white/30 shadow-2xl" 
+          className="backdrop-blur-xl bg-white/98 border border-white/30 shadow-2xl w-full" 
           variant="outline"
           style={{
-            borderRadius: '20px',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1)'
+            borderRadius: '16px',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1)',
+            maxWidth: '100%',
+            margin: '0 auto'
           }}
         >
-          <CardHeader className="pt-8 pb-6 px-8">
-            {/* Logo and Branding - Horizontal Layout */}
+          <CardHeader className="pt-6 sm:pt-8 pb-4 sm:pb-6 px-4 sm:px-8">
+            {/* Logo and Branding - Responsive Layout */}
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.4 }}
-              className="flex items-center gap-6 w-full"
+              className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full"
             >
-              {/* Logo Container - Left Side - Larger Size */}
+              {/* Logo Container - Responsive Size */}
               <div 
-                className="flex-shrink-0 w-56 h-56 flex items-center justify-center bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100"
+                className="flex-shrink-0 w-32 h-32 sm:w-40 sm:h-40 md:w-56 md:h-56 flex items-center justify-center bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 shadow-lg border-2 border-gray-100"
                 style={{
                   boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12)'
                 }}
@@ -272,13 +280,13 @@ export function LoginPage() {
                 />
               </div>
               
-              {/* Branding Section - Right Side */}
-              <div className="flex-1 space-y-1">
+              {/* Branding Section - Centered on mobile, left-aligned on desktop */}
+              <div className="flex-1 space-y-1 text-center sm:text-left">
                 <motion.h1
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3, duration: 0.4 }}
-                  className="text-2xl font-bold tracking-tight leading-tight"
+                  className="text-xl sm:text-2xl font-bold tracking-tight leading-tight"
                   style={{
                     letterSpacing: '-0.3px',
                     color: '#10b981'
@@ -290,7 +298,7 @@ export function LoginPage() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4, duration: 0.4 }}
-                  className="text-lg font-semibold"
+                  className="text-base sm:text-lg font-semibold"
                   style={{
                     color: '#10b981'
                   }}
@@ -301,7 +309,7 @@ export function LoginPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5, duration: 0.4 }}
-                  className="text-sm text-gray-500 font-medium pt-1"
+                  className="text-xs sm:text-sm text-gray-500 font-medium pt-1"
                 >
                   Digitize Your Hostel Operations
                 </motion.p>
@@ -330,7 +338,7 @@ export function LoginPage() {
             </AnimatePresence>
           </CardHeader>
           
-          <CardBody className="px-8 pb-8">
+          <CardBody className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8">
             <AnimatePresence mode="wait">
               {/* Login Form */}
               {currentView === 'login' && (
@@ -341,19 +349,19 @@ export function LoginPage() {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.3 }}
                   onSubmit={handleLoginSubmit}
-                  className="space-y-5"
+                  className="space-y-4 sm:space-y-5"
                 >
                   {/* Username Input */}
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
-                      <Mail className="w-5 h-5" />
+                    <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
+                      <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <Input
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Username or phone number"
                       autoComplete="username"
-                      className="h-12 text-base pl-12 pr-4"
+                      className="h-11 sm:h-12 text-sm sm:text-base pl-10 sm:pl-12 pr-3 sm:pr-4"
                       style={{
                         backgroundColor: '#f8fafc',
                         borderColor: '#cbd5e1',
@@ -377,8 +385,8 @@ export function LoginPage() {
                   
                   {/* Password Input */}
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
-                      <Lock className="w-5 h-5" />
+                    <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
+                      <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <Input
                       type="password"
@@ -386,7 +394,7 @@ export function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
                       autoComplete="current-password"
-                      className="h-12 text-base pl-12 pr-4"
+                      className="h-11 sm:h-12 text-sm sm:text-base pl-10 sm:pl-12 pr-3 sm:pr-4"
                       style={{
                         backgroundColor: '#f8fafc',
                         borderColor: '#cbd5e1',
@@ -412,7 +420,7 @@ export function LoginPage() {
                   <div className="pt-1">
                     <Button
                       type="submit"
-                      className="w-full h-12 text-base font-bold shadow-lg hover:shadow-xl transition-all duration-200 uppercase tracking-wide flex items-center justify-center gap-2"
+                      className="w-full h-11 sm:h-12 text-sm sm:text-base font-bold shadow-lg hover:shadow-xl transition-all duration-200 uppercase tracking-wide flex items-center justify-center gap-2"
                       disabled={loading || !username || !password}
                       style={{
                         background: loading || !username || !password 
@@ -439,8 +447,8 @@ export function LoginPage() {
                   </div>
                   
                   {/* Footer Links */}
-                  <div className="space-y-3 pt-2">
-                    <p className="text-xs text-gray-600 text-center">
+                  <div className="space-y-2 sm:space-y-3 pt-2">
+                    <p className="text-xs text-gray-600 text-center leading-relaxed px-2">
                       By signing in, I agree to the{' '}
                       <a 
                         href="/terms" 
@@ -453,7 +461,7 @@ export function LoginPage() {
                         Terms & Conditions
                       </a>
                     </p>
-                    <p className="text-xs text-gray-600 text-center">
+                    <p className="text-xs text-gray-600 text-center px-2">
                       Forgot Password?{' '}
                       <a 
                         href="#" 
@@ -479,18 +487,18 @@ export function LoginPage() {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.3 }}
                   onSubmit={handleForgotPasswordSubmit}
-                  className="space-y-5"
+                  className="space-y-4 sm:space-y-5"
                 >
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
-                      <Phone className="w-5 h-5" />
+                    <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
+                      <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <Input
                       type="tel"
                       placeholder="0702913454 or +256702913454"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="h-12 text-base pl-12 pr-4"
+                      className="h-11 sm:h-12 text-sm sm:text-base pl-10 sm:pl-12 pr-3 sm:pr-4"
                       style={{
                         backgroundColor: '#f8fafc',
                         borderColor: '#cbd5e1',
@@ -517,7 +525,7 @@ export function LoginPage() {
                   <div className="pt-1">
                     <Button
                       type="submit"
-                      className="w-full h-12 text-base font-bold shadow-lg hover:shadow-xl transition-all duration-200 uppercase tracking-wide flex items-center justify-center gap-2"
+                      className="w-full h-11 sm:h-12 text-sm sm:text-base font-bold shadow-lg hover:shadow-xl transition-all duration-200 uppercase tracking-wide flex items-center justify-center gap-2"
                       disabled={loading || !phone}
                       style={{
                         background: loading || !phone 
@@ -566,11 +574,11 @@ export function LoginPage() {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.3 }}
                   onSubmit={handleVerifyOTPSubmit}
-                  className="space-y-5"
+                  className="space-y-4 sm:space-y-5"
                 >
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
-                      <Shield className="w-5 h-5" />
+                    <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
+                      <Shield className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <Input
                       type="text"
@@ -578,7 +586,7 @@ export function LoginPage() {
                       placeholder="000000"
                       value={otp}
                       onChange={handleOtpChange}
-                      className="h-12 text-base pl-12 pr-4 text-center text-2xl font-bold tracking-widest"
+                      className="h-11 sm:h-12 text-base sm:text-lg md:text-2xl pl-10 sm:pl-12 pr-3 sm:pr-4 text-center font-bold tracking-widest"
                       style={{
                         backgroundColor: '#f8fafc',
                         borderColor: '#cbd5e1',
@@ -602,14 +610,14 @@ export function LoginPage() {
                       }}
                     />
                   </div>
-                  <p className="text-xs text-gray-500 text-center">
+                  <p className="text-xs text-gray-500 text-center px-2">
                     Code expires in 10 minutes
                   </p>
 
                   <div className="pt-1">
                     <Button
                       type="submit"
-                      className="w-full h-12 text-base font-bold shadow-lg hover:shadow-xl transition-all duration-200 uppercase tracking-wide flex items-center justify-center gap-2"
+                      className="w-full h-11 sm:h-12 text-sm sm:text-base font-bold shadow-lg hover:shadow-xl transition-all duration-200 uppercase tracking-wide flex items-center justify-center gap-2"
                       disabled={loading || otp.length !== 6}
                       style={{
                         background: loading || otp.length !== 6
@@ -658,18 +666,18 @@ export function LoginPage() {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.3 }}
                   onSubmit={handleResetPasswordSubmit}
-                  className="space-y-5"
+                  className="space-y-4 sm:space-y-5"
                 >
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
-                      <Lock className="w-5 h-5" />
+                    <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
+                      <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Enter new password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="h-12 text-base pl-12 pr-10"
+                      className="h-11 sm:h-12 text-sm sm:text-base pl-10 sm:pl-12 pr-9 sm:pr-10"
                       style={{
                         backgroundColor: '#f8fafc',
                         borderColor: '#cbd5e1',
@@ -695,25 +703,25 @@ export function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      {showPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 px-1">
                     Must be at least 6 characters
                   </p>
 
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
-                      <Lock className="w-5 h-5" />
+                    <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10">
+                      <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <Input
                       type={showConfirmPassword ? 'text' : 'password'}
                       placeholder="Confirm new password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="h-12 text-base pl-12 pr-10"
+                      className="h-11 sm:h-12 text-sm sm:text-base pl-10 sm:pl-12 pr-9 sm:pr-10"
                       style={{
                         backgroundColor: '#f8fafc',
                         borderColor: '#cbd5e1',
@@ -739,16 +747,16 @@ export function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
-                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
                     </button>
                   </div>
 
                   <div className="pt-1">
                     <Button
                       type="submit"
-                      className="w-full h-12 text-base font-bold shadow-lg hover:shadow-xl transition-all duration-200 uppercase tracking-wide flex items-center justify-center gap-2"
+                      className="w-full h-11 sm:h-12 text-sm sm:text-base font-bold shadow-lg hover:shadow-xl transition-all duration-200 uppercase tracking-wide flex items-center justify-center gap-2"
                       disabled={loading || !newPassword || !confirmPassword || newPassword !== confirmPassword}
                       style={{
                         background: loading || !newPassword || !confirmPassword || newPassword !== confirmPassword
@@ -796,13 +804,14 @@ export function LoginPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.4 }}
-          className="mt-6 text-center"
+          className="mt-4 sm:mt-6 text-center"
         >
           <Text className="text-xs text-white/80 font-medium">
             ©2026, a product of <span className="font-bold">MARTMOR TECHNOLOGIES</span>
           </Text>
         </motion.div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
