@@ -419,7 +419,7 @@ export async function updateSemester(
 export async function deleteSemester(semesterId: number): Promise<void> {
   // Let errors propagate - component will handle them
   // The interceptor will handle token refresh if needed
-  await apiClient.delete(`/api/semesters/${semesterId}`);
+  await apiClient.delete(`/semesters/${semesterId}`);
 }
 
 // Profile Management
@@ -432,7 +432,7 @@ export interface UserProfile {
 }
 
 export async function fetchUserProfile(): Promise<UserProfile> {
-  const res = await apiClient.get<UserProfile>('/api/users/me');
+  const res = await apiClient.get<UserProfile>('/users/me');
   return res.data;
 }
 
@@ -444,7 +444,7 @@ export interface UpdateProfileData {
 }
 
 export async function updateUserProfile(data: UpdateProfileData): Promise<{ message: string; user: UserProfile }> {
-  const res = await apiClient.put<{ message: string; user: UserProfile }>('/api/users/me', data);
+  const res = await apiClient.put<{ message: string; user: UserProfile }>('/users/me', data);
   return res.data;
 }
 
@@ -460,7 +460,7 @@ export interface HostelInfo {
 
 export async function fetchMyHostel(): Promise<HostelInfo | null> {
   try {
-    const res = await apiClient.get<HostelInfo[]>('/api/hostels');
+    const res = await apiClient.get<HostelInfo[]>('/hostels');
     return res.data && res.data.length > 0 ? res.data[0] : null;
   } catch (error) {
     console.error('Error fetching hostel:', error);
@@ -484,7 +484,7 @@ export interface CheckIn {
 
 export async function fetchCheckIns(): Promise<CheckIn[]> {
   try {
-    const res = await apiClient.get<CheckIn[]>('/api/check-ins');
+    const res = await apiClient.get<CheckIn[]>('/check-ins');
     return res.data;
   } catch (error: any) {
     if (error?.response?.status === 400 || error?.response?.status === 404) {
@@ -499,7 +499,7 @@ export async function checkInStudent(payload: {
   studentId: number;
   hostelId?: number;
 }): Promise<{ checkInId: number; message: string }> {
-  const res = await apiClient.post<{ checkInId: number; message: string }>('/api/check-ins', payload);
+  const res = await apiClient.post<{ checkInId: number; message: string }>('/check-ins', payload);
   return res.data;
 }
 
@@ -507,7 +507,7 @@ export async function checkOutStudentFromCheckIn(payload: {
   studentId: number;
   hostelId?: number;
 }): Promise<void> {
-  await apiClient.post('/api/check-ins/checkout', payload);
+  await apiClient.post('/check-ins/checkout', payload);
 }
 
 // Expenses
@@ -548,7 +548,7 @@ export async function createExpense(payload: {
   semesterId?: number | null;
   hostelId?: number;
 }): Promise<{ expenseId: number; message: string }> {
-  const res = await apiClient.post<{ expenseId: number; message: string }>('/api/expenses', payload);
+  const res = await apiClient.post<{ expenseId: number; message: string }>('/expenses', payload);
   return res.data;
 }
 
@@ -561,7 +561,7 @@ export async function fetchExpenses(params?: {
   category?: string;
   hostelId?: number;
 }): Promise<ExpenseListResponse> {
-  const res = await apiClient.get<ExpenseListResponse>('/api/expenses', { params });
+  const res = await apiClient.get<ExpenseListResponse>('/expenses', { params });
   return res.data;
 }
 
@@ -571,7 +571,7 @@ export async function fetchExpenseStats(params?: {
   endDate?: string;
   hostelId?: number;
 }): Promise<ExpenseStats> {
-  const res = await apiClient.get<ExpenseStats>('/api/expenses/stats', { params });
+  const res = await apiClient.get<ExpenseStats>('/expenses/stats', { params });
   return res.data;
 }
 
@@ -590,6 +590,6 @@ export interface SMSHistory {
 }
 
 export async function fetchStudentSMSHistory(studentId: number): Promise<SMSHistory[]> {
-  const res = await apiClient.get<SMSHistory[]>(`/api/students/${studentId}/sms-history`);
+  const res = await apiClient.get<SMSHistory[]>(`/students/${studentId}/sms-history`);
   return res.data;
 }
