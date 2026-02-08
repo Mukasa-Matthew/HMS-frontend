@@ -88,7 +88,6 @@ export function StudentsPage() {
     if (isRegisterOpen) {
       const refreshRoomsAndAllocations = async () => {
         try {
-          console.log('Refreshing rooms and allocations for registration modal...');
           const [roomsData, allocationsData] = await Promise.all([
             fetchRooms().catch((err) => {
               console.error('Error fetching rooms:', err);
@@ -99,12 +98,6 @@ export function StudentsPage() {
               return [];
             }),
           ]);
-          console.log('Refreshed data:', {
-            rooms: roomsData.length,
-            allocations: allocationsData.length,
-            roomsSample: roomsData.slice(0, 3),
-            allocationsSample: allocationsData.slice(0, 3)
-          });
           setRooms(roomsData);
           setAllocations(allocationsData);
         } catch (error) {
@@ -136,14 +129,6 @@ export function StudentsPage() {
           return [];
         }),
       ]);
-      
-      console.log('Loaded data for StudentsPage:', {
-        students: studentsData.length,
-        rooms: roomsData.length,
-        allocations: allocationsData.length,
-        roomsSample: roomsData.slice(0, 3),
-        allocationsSample: allocationsData.slice(0, 3)
-      });
       
       setStudents(studentsData);
       setRooms(roomsData);
@@ -360,15 +345,7 @@ export function StudentsPage() {
   // Get available rooms (not occupied)
   // Note: Backend already filters by is_active = 1, so all rooms returned are active
   const availableRooms = React.useMemo(() => {
-    console.log('Calculating available rooms:', {
-      roomsCount: rooms.length,
-      allocationsCount: allocations.length,
-      rooms: rooms.map(r => ({ id: r.id, name: r.name, idType: typeof r.id, is_active: r.is_active })),
-      allocations: allocations.map(a => ({ id: a.id, room_id: a.room_id, room_idType: typeof a.room_id }))
-    });
-
     if (rooms.length === 0) {
-      console.log('No rooms loaded yet');
       return [];
     }
     
@@ -376,7 +353,6 @@ export function StudentsPage() {
     const filtered = rooms.filter((room) => {
       // Ensure room is active
       if (room.is_active !== 1 && room.is_active !== true) {
-        console.log(`Room ${room.id} (${room.name}) is not active`);
         return false;
       }
       
@@ -385,23 +361,11 @@ export function StudentsPage() {
       const roomId = Number(room.id);
       const isOccupied = allocations.some((a) => {
         const allocationRoomId = Number(a.room_id);
-        const matches = allocationRoomId === roomId;
-        if (matches) {
-          console.log(`Room ${room.id} (${room.name}) is occupied by allocation ${a.id}`);
-        }
-        return matches;
+        return allocationRoomId === roomId;
       });
-      
-      if (!isOccupied) {
-        console.log(`Room ${room.id} (${room.name}) is available`);
-      }
       
       return !isOccupied;
     });
-    
-    console.log('Available rooms result:', {
-      totalRooms: rooms.length,
-      totalAllocations: allocations.length,
       availableRoomsCount: filtered.length,
       availableRooms: filtered.map(r => ({ id: r.id, name: r.name }))
     });

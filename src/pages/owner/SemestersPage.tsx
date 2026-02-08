@@ -271,11 +271,6 @@ export function SemestersPage() {
     });
   };
 
-  // Debug logging
-  React.useEffect(() => {
-    console.log('SemestersPage - loading:', loading, 'allSemesters:', allSemesters, 'count:', allSemesters.length, 'items:', allSemesters);
-  }, [loading, allSemesters]);
-
   if (loading) {
     return (
       <Box>

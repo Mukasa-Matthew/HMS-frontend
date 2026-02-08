@@ -45,13 +45,9 @@ export function SemesterProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      console.log('Fetching semesters for user:', user.id, 'role:', user.role);
       const semesters = await fetchSemesters();
-      console.log('Received semesters:', semesters, 'type:', typeof semesters, 'isArray:', Array.isArray(semesters));
       const semesterArray = Array.isArray(semesters) ? semesters : [];
-      console.log('Setting allSemesters to:', semesterArray.length, 'semesters');
       setAllSemesters(semesterArray);
-      console.log('State update called - allSemesters should now have', semesterArray.length, 'items');
     } catch (error: any) {
       // All errors are handled in fetchSemesters - it returns [] on error
       console.error('Error in refreshAllSemesters:', error);
