@@ -366,9 +366,6 @@ export function StudentsPage() {
       
       return !isOccupied;
     });
-      availableRoomsCount: filtered.length,
-      availableRooms: filtered.map(r => ({ id: r.id, name: r.name }))
-    });
     
     return filtered;
   }, [rooms, allocations]);
