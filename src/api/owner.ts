@@ -216,6 +216,31 @@ export async function recordPayment(payload: {
   }
 }
 
+export interface ReceiptData {
+  receiptNumber: string;
+  hostelName: string;
+  hostelContactPhone: string | null;
+  studentName: string;
+  registrationNumber: string;
+  studentPhone: string | null;
+  roomNumber: string;
+  amountPaid: number;
+  totalRequired: number;
+  balance: number;
+  paymentDate: string;
+  paymentId: number;
+}
+
+export async function getReceiptData(paymentId: number): Promise<ReceiptData> {
+  const res = await apiClient.get<ReceiptData>(`/receipts/${paymentId}`);
+  return res.data;
+}
+
+export function getReceiptPreviewURL(paymentId: number): string {
+  const baseURL = apiClient.defaults.baseURL || 'https://hmsapi.martomor.xyz/api';
+  return `${baseURL}/receipts/${paymentId}/preview`;
+}
+
 export async function getPaymentSummary(allocationId: number): Promise<PaymentSummary> {
   const res = await apiClient.get<PaymentSummary>(`/payments/summary/${allocationId}`);
   return res.data;

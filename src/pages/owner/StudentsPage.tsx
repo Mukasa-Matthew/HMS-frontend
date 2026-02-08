@@ -5,17 +5,19 @@ import {
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, useDisclosure,
   FormLabel, FormControl, Select, Divider, Menu, MenuButton, MenuList, MenuItem, RadioGroup, Radio, Stack
 } from '@chakra-ui/react';
-import { Users, Search, Phone, Mail, MapPin, User, BedDouble, DollarSign, Plus, MoreVertical, LogIn, Eye } from 'lucide-react';
+import { Users, Search, Phone, Mail, MapPin, User, BedDouble, DollarSign, Plus, MoreVertical, LogIn, Eye, Receipt } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { 
   StudentWithDetails, fetchStudentsWithDetails, createStudent,
   Room, fetchRooms, allocateRoom, fetchAllocations,
-  recordPayment, Allocation, fetchStudentSMSHistory, SMSHistory
+  recordPayment, Allocation, fetchStudentSMSHistory, SMSHistory,
+  Payment, fetchPayments
 } from '../../api/owner';
 import { useToast } from '../../components/ui/toaster';
 import { useFeatureSettings } from '../../hooks/useFeatureSettings';
 import { useAuth } from '../../hooks/useAuth';
+import { ReceiptPreview } from '../../components/receipt/ReceiptPreview';
 
 export function StudentsPage() {
   const { toast } = useToast();
@@ -34,10 +36,13 @@ export function StudentsPage() {
   const { isOpen: isPaymentOpen, onOpen: onPaymentOpen, onClose: onPaymentClose } = useDisclosure();
   const { isOpen: isViewDetailsOpen, onOpen: onViewDetailsOpen, onClose: onViewDetailsClose } = useDisclosure();
   const { isOpen: isSMSHistoryOpen, onOpen: onSMSHistoryOpen, onClose: onSMSHistoryClose } = useDisclosure();
+  const { isOpen: isReceiptPreviewOpen, onOpen: onReceiptPreviewOpen, onClose: onReceiptPreviewClose } = useDisclosure();
   
   const [students, setStudents] = useState<StudentWithDetails[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [allocations, setAllocations] = useState<Allocation[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [selectedPaymentId, setSelectedPaymentId] = useState<number | null>(null);
   const [filteredStudents, setFilteredStudents] = useState<StudentWithDetails[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -113,7 +118,7 @@ export function StudentsPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [studentsData, roomsData, allocationsData] = await Promise.all([
+      const [studentsData, roomsData, allocationsData, paymentsData] = await Promise.all([
         fetchStudentsWithDetails().catch((err) => {
           console.error('Error fetching students:', err);
           return [];
@@ -124,6 +129,10 @@ export function StudentsPage() {
         }),
         fetchAllocations().catch((err) => {
           console.error('Error fetching allocations:', err);
+          return [];
+        }),
+        fetchPayments().catch((err) => {
+          console.error('Error fetching payments:', err);
           return [];
         }),
       ]);
@@ -139,6 +148,7 @@ export function StudentsPage() {
       setStudents(studentsData);
       setRooms(roomsData);
       setAllocations(allocationsData);
+      setPayments(paymentsData);
     } catch (error) {
       console.error('Failed to load students:', error);
       toast({ title: 'Error', description: 'Failed to load data', status: 'error' });
@@ -726,6 +736,27 @@ export function StudentsPage() {
                                 <MenuItem icon={<DollarSign className="w-4 h-4" />} onClick={() => handleRecordPayment(student)}>
                                   Record Payment
                                 </MenuItem>
+                                {(() => {
+                                  // Get latest payment for this student
+                                  const studentAllocation = allocations.find(a => a.student_id === student.id);
+                                  if (!studentAllocation) return null;
+                                  const studentPayments = payments
+                                    .filter(p => p.allocation_id === studentAllocation.id)
+                                    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                                  const latestPayment = studentPayments[0];
+                                  if (!latestPayment) return null;
+                                  return (
+                                    <MenuItem 
+                                      icon={<Receipt className="w-4 h-4" />} 
+                                      onClick={() => {
+                                        setSelectedPaymentId(latestPayment.id);
+                                        onReceiptPreviewOpen();
+                                      }}
+                                    >
+                                      View Receipt
+                                    </MenuItem>
+                                  );
+                                })()}
                               </>
                             )}
                           </MenuList>
@@ -1389,6 +1420,16 @@ export function StudentsPage() {
           </ModalBody>
         </ModalContent>
       </Modal>
+
+      {/* Receipt Preview Modal */}
+      <ReceiptPreview
+        paymentId={selectedPaymentId}
+        isOpen={isReceiptPreviewOpen}
+        onClose={() => {
+          onReceiptPreviewClose();
+          setSelectedPaymentId(null);
+        }}
+      />
     </Box>
   );
 }
