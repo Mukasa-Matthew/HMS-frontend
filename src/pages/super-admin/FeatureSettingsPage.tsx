@@ -51,6 +51,10 @@ const FEATURE_LABELS: Record<string, { label: string; description: string }> = {
     label: 'Dashboard Quick Action Buttons',
     description: 'Show quick action buttons (Record Payment, Check-in, Check-out, Generate Receipt) on the dashboard',
   },
+  owner_view_payment_amounts: {
+    label: 'Hostel Owner Can See Payment Amounts',
+    description: 'Allow Hostel Owners to see how much each student has paid for their room. When OFF, payment amounts are hidden from Owners.',
+  },
 };
 
 export function FeatureSettingsPage() {
