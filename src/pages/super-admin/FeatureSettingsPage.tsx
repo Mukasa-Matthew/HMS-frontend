@@ -55,6 +55,10 @@ const FEATURE_LABELS: Record<string, { label: string; description: string }> = {
     label: 'Hostel Owner Can See Payment Amounts',
     description: 'Allow Hostel Owners to see how much each student has paid for their room. When OFF, payment amounts are hidden from Owners.',
   },
+  allow_custodian_price_markup: {
+    label: 'Allow Custodian Price Markup',
+    description: 'Enable custodians to set display prices different from actual room prices. When enabled, custodians can tell students a higher price while the owner sees the actual price. Students receive receipts with the display price.',
+  },
 };
 
 export function FeatureSettingsPage() {

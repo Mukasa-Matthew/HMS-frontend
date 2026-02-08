@@ -236,6 +236,7 @@ export async function fetchAllocations(): Promise<Allocation[]> {
 export async function allocateRoom(payload: {
   studentId: number;
   roomId: number;
+  displayPrice?: number; // Optional display price (only for custodians when feature enabled)
 }): Promise<{ allocationId: number; totalRequired: number; message?: string }> {
   try {
     const res = await apiClient.post<{ allocationId: number; totalRequired: number; message?: string }>('/payments/allocate', payload);

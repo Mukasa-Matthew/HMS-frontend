@@ -15,13 +15,20 @@ import {
 } from '../../api/owner';
 import { useToast } from '../../components/ui/toaster';
 import { useFeatureSettings } from '../../hooks/useFeatureSettings';
+import { useAuth } from '../../hooks/useAuth';
 
 export function StudentsPage() {
   const { toast } = useToast();
   const { features } = useFeatureSettings();
+  const { user } = useAuth();
   
   // Check if owner can view payment amounts (defaults to true if not set)
   const canViewPaymentAmounts = features.get('owner_view_payment_amounts') ?? true;
+  
+  // Check if custodian price markup is enabled and user is custodian
+  const isCustodian = user?.role === 'CUSTODIAN';
+  const markupEnabled = features.get('allow_custodian_price_markup') ?? false;
+  const canSetDisplayPrice = isCustodian && markupEnabled;
   const { isOpen: isRegisterOpen, onOpen: onRegisterOpen, onClose: onRegisterClose } = useDisclosure();
   const { isOpen: isAssignRoomOpen, onOpen: onAssignRoomOpen, onClose: onAssignRoomClose } = useDisclosure();
   const { isOpen: isPaymentOpen, onOpen: onPaymentOpen, onClose: onPaymentClose } = useDisclosure();
@@ -50,11 +57,13 @@ export function StudentsPage() {
     gender: '',
     roomId: '',
     initialPayment: '',
+    displayPrice: '',
   });
   const [roomSearchQuery, setRoomSearchQuery] = useState('');
 
   const [assignRoomForm, setAssignRoomForm] = useState({
     roomId: '',
+    displayPrice: '',
   });
 
   const [paymentForm, setPaymentForm] = useState({
@@ -188,10 +197,20 @@ export function StudentsPage() {
 
       // Step 2: Allocate room if selected
       if (newStudent.roomId) {
-        const allocationResult = await allocateRoom({
+        const allocationPayload: { studentId: number; roomId: number; displayPrice?: number } = {
           studentId: createdStudent.id,
           roomId: Number(newStudent.roomId),
-        });
+        };
+        
+        // Add displayPrice if feature is enabled and value is provided
+        if (canSetDisplayPrice && newStudent.displayPrice) {
+          const displayPrice = parseFloat(newStudent.displayPrice);
+          if (!isNaN(displayPrice) && displayPrice > 0) {
+            allocationPayload.displayPrice = displayPrice;
+          }
+        }
+        
+        const allocationResult = await allocateRoom(allocationPayload);
 
         // Step 3: Record initial payment if provided
         if (newStudent.initialPayment && parseFloat(newStudent.initialPayment) > 0) {
@@ -221,6 +240,7 @@ export function StudentsPage() {
         gender: '',
         roomId: '',
         initialPayment: '',
+        displayPrice: '',
       });
       setRoomSearchQuery('');
       await loadData();
@@ -237,7 +257,7 @@ export function StudentsPage() {
 
   const handleAssignRoom = async (student: StudentWithDetails) => {
     setSelectedStudent(student);
-    setAssignRoomForm({ roomId: '' });
+    setAssignRoomForm({ roomId: '', displayPrice: '' });
     onAssignRoomOpen();
   };
 
@@ -250,15 +270,25 @@ export function StudentsPage() {
 
     try {
       setSubmitting(true);
-      await allocateRoom({
+      const payload: { studentId: number; roomId: number; displayPrice?: number } = {
         studentId: selectedStudent.id,
         roomId: Number(assignRoomForm.roomId),
-      });
+      };
+      
+      // Add displayPrice if feature is enabled and value is provided
+      if (canSetDisplayPrice && assignRoomForm.displayPrice) {
+        const displayPrice = parseFloat(assignRoomForm.displayPrice);
+        if (!isNaN(displayPrice) && displayPrice > 0) {
+          payload.displayPrice = displayPrice;
+        }
+      }
+      
+      await allocateRoom(payload);
 
       toast({ title: 'Success', description: 'Room assigned successfully', status: 'success' });
       onAssignRoomClose();
       setSelectedStudent(null);
-      setAssignRoomForm({ roomId: '' });
+      setAssignRoomForm({ roomId: '', displayPrice: '' });
       await loadData();
     } catch (error: any) {
       toast({ 
@@ -918,7 +948,7 @@ export function StudentsPage() {
                               <strong>Room:</strong> {selectedRoom.name}
                             </Text>
                             <Text fontSize="sm" color="gray.700">
-                              <strong>Price:</strong> {formatCurrency(Number(selectedRoom.price))}
+                              <strong>Actual Price:</strong> {formatCurrency(Number(selectedRoom.price))}
                             </Text>
                             <Text fontSize="sm" color="gray.700">
                               <strong>Capacity:</strong> {selectedRoom.capacity} student(s)
@@ -928,6 +958,49 @@ export function StudentsPage() {
                       })()}
                     </VStack>
                   </Box>
+                )}
+
+                {canSetDisplayPrice && newStudent.roomId && (
+                  <FormControl>
+                    <FormLabel>Display Price (Optional)</FormLabel>
+                    <Text fontSize="xs" color="gray.500" mb={2}>
+                      Enter the price to show the student. This must be equal to or greater than the actual room price. 
+                      The owner will see the actual price, but the student will receive receipts with this display price.
+                    </Text>
+                    <ChakraInput
+                      type="number"
+                      step="0.01"
+                      min={(() => {
+                        const selectedRoom = rooms.find((r) => r.id === Number(newStudent.roomId));
+                        return selectedRoom ? Number(selectedRoom.price) : 0;
+                      })()}
+                      value={newStudent.displayPrice}
+                      onChange={(e) => setNewStudent({ ...newStudent, displayPrice: e.target.value })}
+                      placeholder="Enter display price (e.g., 1200000)"
+                      bg="white"
+                    />
+                    {newStudent.displayPrice && (() => {
+                      const selectedRoom = rooms.find((r) => r.id === Number(newStudent.roomId));
+                      const displayPrice = parseFloat(newStudent.displayPrice);
+                      const actualPrice = selectedRoom ? Number(selectedRoom.price) : 0;
+                      if (selectedRoom && !isNaN(displayPrice)) {
+                        if (displayPrice < actualPrice) {
+                          return (
+                            <Text fontSize="xs" color="red.500" mt={1}>
+                              Display price must be at least {formatCurrency(actualPrice)}
+                            </Text>
+                          );
+                        }
+                        const markup = displayPrice - actualPrice;
+                        return (
+                          <Text fontSize="xs" color="green.600" mt={1}>
+                            Markup: {formatCurrency(markup)} ({((markup / actualPrice) * 100).toFixed(1)}%)
+                          </Text>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </FormControl>
                 )}
 
                 <FormControl>
@@ -1021,7 +1094,7 @@ export function StudentsPage() {
                               <strong>Room:</strong> {selectedRoom.name}
                             </Text>
                             <Text fontSize="sm" color="gray.700">
-                              <strong>Price:</strong> {formatCurrency(Number(selectedRoom.price))}
+                              <strong>Actual Price:</strong> {formatCurrency(Number(selectedRoom.price))}
                             </Text>
                             <Text fontSize="sm" color="gray.700">
                               <strong>Capacity:</strong> {selectedRoom.capacity} student(s)
@@ -1031,6 +1104,49 @@ export function StudentsPage() {
                       })()}
                     </VStack>
                   </Box>
+                )}
+
+                {canSetDisplayPrice && assignRoomForm.roomId && (
+                  <FormControl>
+                    <FormLabel>Display Price (Optional)</FormLabel>
+                    <Text fontSize="xs" color="gray.500" mb={2}>
+                      Enter the price to show the student. This must be equal to or greater than the actual room price. 
+                      The owner will see the actual price, but the student will receive receipts with this display price.
+                    </Text>
+                    <ChakraInput
+                      type="number"
+                      step="0.01"
+                      min={(() => {
+                        const selectedRoom = rooms.find((r) => r.id === Number(assignRoomForm.roomId));
+                        return selectedRoom ? Number(selectedRoom.price) : 0;
+                      })()}
+                      value={assignRoomForm.displayPrice}
+                      onChange={(e) => setAssignRoomForm({ ...assignRoomForm, displayPrice: e.target.value })}
+                      placeholder="Enter display price (e.g., 1200000)"
+                      bg="white"
+                    />
+                    {assignRoomForm.displayPrice && (() => {
+                      const selectedRoom = rooms.find((r) => r.id === Number(assignRoomForm.roomId));
+                      const displayPrice = parseFloat(assignRoomForm.displayPrice);
+                      const actualPrice = selectedRoom ? Number(selectedRoom.price) : 0;
+                      if (selectedRoom && !isNaN(displayPrice)) {
+                        if (displayPrice < actualPrice) {
+                          return (
+                            <Text fontSize="xs" color="red.500" mt={1}>
+                              Display price must be at least {formatCurrency(actualPrice)}
+                            </Text>
+                          );
+                        }
+                        const markup = displayPrice - actualPrice;
+                        return (
+                          <Text fontSize="xs" color="green.600" mt={1}>
+                            Markup: {formatCurrency(markup)} ({((markup / actualPrice) * 100).toFixed(1)}%)
+                          </Text>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </FormControl>
                 )}
 
                 <Divider />
