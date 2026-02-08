@@ -14,9 +14,14 @@ import {
   recordPayment, Allocation, fetchStudentSMSHistory, SMSHistory
 } from '../../api/owner';
 import { useToast } from '../../components/ui/toaster';
+import { useFeatureSettings } from '../../hooks/useFeatureSettings';
 
 export function StudentsPage() {
   const { toast } = useToast();
+  const { features } = useFeatureSettings();
+  
+  // Check if owner can view payment amounts (defaults to true if not set)
+  const canViewPaymentAmounts = features.get('owner_view_payment_amounts') ?? true;
   const { isOpen: isRegisterOpen, onOpen: onRegisterOpen, onClose: onRegisterClose } = useDisclosure();
   const { isOpen: isAssignRoomOpen, onOpen: onAssignRoomOpen, onClose: onAssignRoomClose } = useDisclosure();
   const { isOpen: isPaymentOpen, onOpen: onPaymentOpen, onClose: onPaymentClose } = useDisclosure();
@@ -476,12 +481,16 @@ export function StudentsPage() {
                 <Th fontSize="xs" fontWeight="600" color="gray.600" textTransform="uppercase" letterSpacing="0.5px" py={3}>
                   Room
                 </Th>
-                <Th fontSize="xs" fontWeight="600" color="gray.600" textTransform="uppercase" letterSpacing="0.5px" py={3} isNumeric>
-                  Amount Paid
-                </Th>
-                <Th fontSize="xs" fontWeight="600" color="gray.600" textTransform="uppercase" letterSpacing="0.5px" py={3} isNumeric>
-                  Balance
-                </Th>
+                {canViewPaymentAmounts && (
+                  <>
+                    <Th fontSize="xs" fontWeight="600" color="gray.600" textTransform="uppercase" letterSpacing="0.5px" py={3} isNumeric>
+                      Amount Paid
+                    </Th>
+                    <Th fontSize="xs" fontWeight="600" color="gray.600" textTransform="uppercase" letterSpacing="0.5px" py={3} isNumeric>
+                      Balance
+                    </Th>
+                  </>
+                )}
                 <Th fontSize="xs" fontWeight="600" color="gray.600" textTransform="uppercase" letterSpacing="0.5px" py={3}>
                   Status
                 </Th>
@@ -493,13 +502,13 @@ export function StudentsPage() {
             <Tbody>
               {loading ? (
                 <Tr>
-                  <Td colSpan={7} py={12} textAlign="center" color="gray.500">
+                  <Td colSpan={canViewPaymentAmounts ? 7 : 5} py={12} textAlign="center" color="gray.500">
                     Loading students...
                   </Td>
                 </Tr>
               ) : filteredStudents.length === 0 ? (
                 <Tr>
-                  <Td colSpan={7} py={12} textAlign="center" color="gray.500">
+                  <Td colSpan={canViewPaymentAmounts ? 7 : 5} py={12} textAlign="center" color="gray.500">
                     <VStack spacing={2}>
                       <Users className="w-8 h-8 text-gray-300" />
                       <Text>
@@ -603,44 +612,48 @@ export function StudentsPage() {
                           </Text>
                         )}
                       </Td>
-                      <Td py={3} isNumeric>
-                        {student.paymentSummary ? (
-                          <VStack align="flex-end" spacing={0}>
-                            {student.allocation ? (
-                              <Text fontSize="sm" fontWeight="600" color="green.600">
-                                {Number(student.paymentSummary.totalPaid).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/{Number(student.allocation.room_price_at_allocation).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                              </Text>
+                      {canViewPaymentAmounts && (
+                        <>
+                          <Td py={3} isNumeric>
+                            {student.paymentSummary ? (
+                              <VStack align="flex-end" spacing={0}>
+                                {student.allocation ? (
+                                  <Text fontSize="sm" fontWeight="600" color="green.600">
+                                    {Number(student.paymentSummary.totalPaid).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/{Number(student.allocation.room_price_at_allocation).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                  </Text>
+                                ) : (
+                                  <Text fontSize="sm" fontWeight="600" color="green.600">
+                                    {Number(student.paymentSummary.totalPaid).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                  </Text>
+                                )}
+                              </VStack>
                             ) : (
-                              <Text fontSize="sm" fontWeight="600" color="green.600">
-                                {Number(student.paymentSummary.totalPaid).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                              <Text fontSize="sm" color="gray.400">
+                                -
                               </Text>
                             )}
-                          </VStack>
-                        ) : (
-                          <Text fontSize="sm" color="gray.400">
-                            -
-                          </Text>
-                        )}
-                      </Td>
-                      <Td py={3} isNumeric>
-                        {student.paymentSummary ? (
-                          <Text 
-                            fontSize="sm" 
-                            fontWeight="600" 
-                            color={hasOutstanding ? 'red.600' : 'green.600'}
-                          >
-                            {hasOutstanding ? (
-                              <>UGX {student.paymentSummary.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</>
+                          </Td>
+                          <Td py={3} isNumeric>
+                            {student.paymentSummary ? (
+                              <Text 
+                                fontSize="sm" 
+                                fontWeight="600" 
+                                color={hasOutstanding ? 'red.600' : 'green.600'}
+                              >
+                                {hasOutstanding ? (
+                                  <>UGX {student.paymentSummary.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</>
+                                ) : (
+                                  <>UGX 0.00</>
+                                )}
+                              </Text>
                             ) : (
-                              <>UGX 0.00</>
+                              <Text fontSize="sm" color="gray.400">
+                                -
+                              </Text>
                             )}
-                          </Text>
-                        ) : (
-                          <Text fontSize="sm" color="gray.400">
-                            -
-                          </Text>
-                        )}
-                      </Td>
+                          </Td>
+                        </>
+                      )}
                       <Td py={3}>
                         {student.room ? (
                           isFullyPaid ? (

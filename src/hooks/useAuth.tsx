@@ -76,6 +76,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const refreshToken = async () => {
+    await apiClient.post('/auth/refresh', {});
+  };
+
+  // Proactive token refresh - refresh tokens before they expire (every 14 minutes)
+  // Access tokens expire in 15 minutes, so refresh at 14 minutes to prevent 401s
+  useEffect(() => {
+    if (!user) return;
+
+    const refreshInterval = setInterval(async () => {
+      try {
+        // Silently refresh token before it expires
+        await refreshToken();
+      } catch (error) {
+        // If refresh fails, the interceptor will handle it on the next API call
+        console.debug('Proactive token refresh failed (will retry on next request):', error);
+      }
+    }, 14 * 60 * 1000); // 14 minutes
+
+    return () => clearInterval(refreshInterval);
+  }, [user]);
+
   const verifyToken = async () => {
     try {
       const res = await apiClient.get('/auth/me');
@@ -124,10 +146,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw error; // Re-throw to let caller handle
       }
     }
-  };
-
-  const refreshToken = async () => {
-    await apiClient.post('/auth/refresh', {});
   };
 
   const refreshUser = async () => {
